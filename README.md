@@ -22,8 +22,17 @@ Build using Flask, see https://flask.palletsprojects.com/en/2.2.x/
   3. Run
   
      ```
-	 flask run
+	 flask --app app/ --debug run
 	 ```
 	 
 	 
 
+## Files
+
+Some Supporting files
+
+  - schema.sql
+  
+    Basic database schema to get you started
+	
+  
