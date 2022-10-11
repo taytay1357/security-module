@@ -35,13 +35,12 @@
   <div class="container">
     
     <nav class="nav-extended  deep-purple">
-      <!-- Dropdown for user admin -->
-      
+      <!-- Dropdown for user admin -->  
       <div class="nav-wrapper deep-purple darken-4">
 
 	<ul id="nav-mobile" class="hide-on-med-and-down">
 	  <li><a href="{{ url_for('index') }}">Home</a></li>
-{#	  <li><a href="{{ url_for('products') }}">Products</a></li> #}
+	  <li><a href="{{ url_for('products') }}">Products</a></li>
 	</ul>
 {#	<ul id="nav-mobile" class="right hide-on-med-and-down">
 	  {% if session["basket"] %}
@@ -64,7 +63,6 @@
 
 
     <!-- Messages and things -->
-    {% include "helpers/checkLogin.html" %}
     {% include "helpers/flashMessage.html" %}
 
     <!-- Main Page Content -->

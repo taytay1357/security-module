@@ -35,4 +35,4 @@ Some Supporting files
   
     Basic database schema to get you started
 	
-  
+	You can build this by visiting the ```/initdb``` url
