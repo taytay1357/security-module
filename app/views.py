@@ -20,7 +20,7 @@ def index():
 @app.route("/products", methods=["GET","POST"])
 def products():
     """
-    Single Page Application for Products
+    Single Page (ish) Application for Products
     """
     theItem = flask.request.args.get("item")
     if theItem:
@@ -32,7 +32,7 @@ def products():
 
 
         
-        #If there is form interaction
+        #If there is form interaction and they put somehing in the basket
         if flask.request.method == "POST":
 
             quantity = flask.request.form.get("quantity")
@@ -45,6 +45,7 @@ def products():
                                              reviews=reviewQry)
             
             logging.warning("Buy Clicked %s items", quantity)
+            
             #And we add something to the Session for the user to keep track
             basket = flask.session.get("basket", {})
 
@@ -133,15 +134,33 @@ def create():
         flask.flash("Account Created, you can now Login")
         return flask.redirect(flask.url_for("login"))
 
-
-@app.route("/user/settings")
-def settings():
+@app.route("/user/<userId>/settings")
+def settings(userId):
     """
-    User Setings,  you may want o implemenet a password change etc"
+    Update a users settning
+
+    IE password etc.
+
     """
-    return "NOT IMPLEMENETED"
+
+    theQry = "Select * FROM User WHERE id = '{0}'".format(userId)                                                   
+    thisUser =  query_db(theQry, one=True)
+
+    
+    if not thisUser:
+        flask.flash("No Such User")
+        return flask.redirect(flask.url_for("index"))
+
+    #Purchaces
+    theSQL = f"Select * FROM purchase WHERE userID = {userId}"
+    purchaces = query_db(theSQL)
+    
+    return flask.render_template("usersettings.html",
+                                 user = thisUser,
+                                 purchaces = purchaces)
 
 
+    
 @app.route("/logout")
 def logout():
     """
@@ -150,6 +169,45 @@ def logout():
     flask.session.clear()
     return flask.redirect(flask.url_for("index"))
     
+
+
+@app.route("/user/<userId>/update", methods=["GET","POST"])
+def updateUser(userId):
+
+    #thisUser = User.query.filter_by(id = userId).first()
+    theQry = "Select * FROM User WHERE id = '{0}'".format(userId)   
+    thisUser = query_db(theQry, one=True)
+    if not thisUser:
+        flask.flash("No Such User")
+        return flask.redirect(flask_url_for("index"))
+
+    #otherwise we want to do the checks
+    if flask.request.method == "POST":
+        current = flask.request.form.get("current")
+        password = flask.request.form.get("password")
+        app.logger.info("Attempt password update for %s from %s to %s", userId, current, password)
+        app.logger.info("%s == %s", current, thisUser["password"])
+        if current:
+            if current == thisUser["password"]:
+                app.logger.info("Password OK, update")
+                #Update the Password
+                theSQL = f"UPDATE user SET password = '{password}' WHERE id = {userId}"
+                app.logger.info("SQL %s", theSQL)
+                write_db(theSQL)
+                flask.flash("Password Updated")
+                
+            else:
+                app.logger.info("Mismatch")
+                flask.flash("Current Password is incorrect")
+            return flask.redirect(flask.url_for("settings",
+                                                userId = thisUser['id']))
+
+            
+    
+        flask.flash("Update Error")
+
+    return flask.redirect(flask.url_for("settings", userId=userId))
+
 
 
 
@@ -168,3 +226,4 @@ def database_helper():
     """
     init_db()
     return "Done"
+
