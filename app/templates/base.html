@@ -42,19 +42,20 @@
 	  <li><a href="{{ url_for('index') }}">Home</a></li>
 	  <li><a href="{{ url_for('products') }}">Products</a></li>
 	</ul>
-{#	<ul id="nav-mobile" class="right hide-on-med-and-down">
+	<ul id="nav-mobile" class="right hide-on-med-and-down">
+	  <!-- Show Basket if here is one -->
 	  {% if session["basket"] %}
 	  <li><a href="{{ url_for('basket')}}">Basket</a></li>
 	  {% endif %}
+	  <!-- Show Login or Other depending on session -->
 	  {% if session["user"] %}
 	  <li><a href="{{ url_for('settings', userId=session['user']) }}">Settings</a></li>
 	  <li><a href="{{ url_for('logout') }}">Logout</a></li>
 	  {% else %}
-	  <li><a href="{{ url_for('login', prev=request.endpoint)}}">Login</a></li>
+	  <li><a href="{{ url_for('login')}}">Login</a></li>
 	  {% endif %}
-	  <li><a href="{{ url_for('about') }}">About</a></li>	  
 	</ul>
-#}
+
       </div>
       {% block navTabs %}
 

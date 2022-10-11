@@ -63,6 +63,95 @@ def products():
                                      books = books)
 
 
+@app.route("/user/login", methods=["GET", "POST"])
+def login():
+    """
+    Login Page
+    """
+    
+    if flask.request.method == "POST":
+        #Get data
+        user = flask.request.form.get("email")
+        password = flask.request.form.get("password")
+        app.logger.info("Attempt to login as %s:%s", user, password)
+
+        theQry = "Select * FROM User WHERE email = '{0}'".format(user)
+
+        userQry =  query_db(theQry, one=True)
+
+        if userQry is None:
+            flask.flash("No Such User")
+        else:
+            app.logger.info("User is Ok")
+            if userQry["password"] == password:
+                app.logger.info("Login as %s Success", userQry["email"])
+                flask.session["user"] = userQry["id"]
+                flask.flash("Login Successful")
+                return (flask.redirect(flask.url_for("index")))
+            else:
+                flask.flash("Password is Incorrect")
+            
+    return flask.render_template("login.html")
+
+@app.route("/user/create", methods=["GET","POST"])
+def create():
+    """ Create a new account,
+    we will redirect to a homepage here
+    """
+
+    if flask.request.method == "GET":
+        return flask.render_template("create_account.html")
+    
+    #Get the form data
+    email = flask.request.form.get("email")
+    password = flask.request.form.get("password")
+    
+    #Sanity check do we have a name, email and password
+    if not email or not password: 
+        flask.flash("Not all info supplied")
+        return flask.render_template("create_account.html",
+                                     email = email)
+
+
+    #Otherwise we can add the user
+    theQry = "Select * FROM User WHERE email = '{0}'".format(email)                                                   
+    userQry =  query_db(theQry, one=True)
+   
+    if userQry:
+        flask.flash("A User with that Email Exists")
+        return flask.render_template("create_account.html",
+                                     name = name,
+                                     email = email)
+
+    else:
+        #Crate the user
+        app.logger.info("Create New User")
+        theQry = f"INSERT INTO user (id, email, password) VALUES (NULL, '{email}', '{password}')"
+
+        userQry = write_db(theQry)
+        
+        flask.flash("Account Created, you can now Login")
+        return flask.redirect(flask.url_for("login"))
+
+
+@app.route("/user/settings")
+def settings():
+    """
+    User Setings,  you may want o implemenet a password change etc"
+    """
+    return "NOT IMPLEMENETED"
+
+
+@app.route("/logout")
+def logout():
+    """
+    Login Page
+    """
+    flask.session.clear()
+    return flask.redirect(flask.url_for("index"))
+    
+
+
 
 @app.route('/uploads/<name>')
 def serve_image(name):

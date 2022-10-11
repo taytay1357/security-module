@@ -21,7 +21,7 @@ UPLOAD_FOLDER = 'uploads'
 app = flask.Flask(__name__)
 
 app.config.update(
-    SECRET_KET="secr3t!",
+    SECRET_KEY="secr3t!",
     SESSION_COOKIE_SAMESITE='Strict',
     UPLOAD_FOLDER=UPLOAD_FOLDER
 )
@@ -46,15 +46,21 @@ def query_db(query, args=(), one=False):
     cur.close()
     return (rv[0] if rv else None) if one else rv
 
+def write_db(query, args=()):
+    """
+    Helper Method for Write
+    """
+    db = get_db()
+    db.execute(query, args)
+    db.commit()
+
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
-
-
-        
-
+    
 def init_db():
     with app.app_context():
         db = get_db()
