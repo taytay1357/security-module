@@ -6,7 +6,7 @@ import datetime
 @app.route("/")
 def index():
     """
-    Main Page
+    Main Page.
     """
 
     #Get data from the DB using meta function
@@ -71,6 +71,10 @@ def products():
                                      books = books)
 
 
+# ------------------
+# USER Level Stuff
+# ---------------------
+    
 @app.route("/user/login", methods=["GET", "POST"])
 def login():
     """
@@ -144,10 +148,8 @@ def create():
 @app.route("/user/<userId>/settings")
 def settings(userId):
     """
-    Update a users settning
-
-    IE password etc.
-
+    Update a users settings, 
+    Allow them to make reviews
     """
 
     theQry = "Select * FROM User WHERE id = '{0}'".format(userId)                                                   
@@ -175,6 +177,61 @@ def settings(userId):
                                  user = thisUser,
                                  purchaces = purchaces)
 
+    
+@app.route("/logout")
+def logout():
+    """
+    Login Page
+    """
+    flask.session.clear()
+    return flask.redirect(flask.url_for("index"))
+    
+
+
+@app.route("/user/<userId>/update", methods=["GET","POST"])
+def updateUser(userId):
+    """
+    Process any chances from the user settings page
+    """
+
+    theQry = "Select * FROM User WHERE id = '{0}'".format(userId)   
+    thisUser = query_db(theQry, one=True)
+    if not thisUser:
+        flask.flash("No Such User")
+        return flask.redirect(flask_url_for("index"))
+
+    #otherwise we want to do the checks
+    if flask.request.method == "POST":
+        current = flask.request.form.get("current")
+        password = flask.request.form.get("password")
+        app.logger.info("Attempt password update for %s from %s to %s", userId, current, password)
+        app.logger.info("%s == %s", current, thisUser["password"])
+        if current:
+            if current == thisUser["password"]:
+                app.logger.info("Password OK, update")
+                #Update the Password
+                theSQL = f"UPDATE user SET password = '{password}' WHERE id = {userId}"
+                app.logger.info("SQL %s", theSQL)
+                write_db(theSQL)
+                flask.flash("Password Updated")
+                
+            else:
+                app.logger.info("Mismatch")
+                flask.flash("Current Password is incorrect")
+            return flask.redirect(flask.url_for("settings",
+                                                userId = thisUser['id']))
+
+            
+    
+        flask.flash("Update Error")
+
+    return flask.redirect(flask.url_for("settings", userId=userId))
+
+# -------------------------------------
+#
+# Functionality to allow user to review items
+#
+# ------------------------------------------
 
 @app.route("/review/<userId>/<itemId>", methods=["GET", "POST"])
 def reviewItem(userId, itemId):
@@ -234,54 +291,11 @@ def reviewItem(userId, itemId):
                                  review = review,
                                  )
 
-
-    
-@app.route("/logout")
-def logout():
-    """
-    Login Page
-    """
-    flask.session.clear()
-    return flask.redirect(flask.url_for("index"))
-    
-
-
-@app.route("/user/<userId>/update", methods=["GET","POST"])
-def updateUser(userId):
-
-    #thisUser = User.query.filter_by(id = userId).first()
-    theQry = "Select * FROM User WHERE id = '{0}'".format(userId)   
-    thisUser = query_db(theQry, one=True)
-    if not thisUser:
-        flask.flash("No Such User")
-        return flask.redirect(flask_url_for("index"))
-
-    #otherwise we want to do the checks
-    if flask.request.method == "POST":
-        current = flask.request.form.get("current")
-        password = flask.request.form.get("password")
-        app.logger.info("Attempt password update for %s from %s to %s", userId, current, password)
-        app.logger.info("%s == %s", current, thisUser["password"])
-        if current:
-            if current == thisUser["password"]:
-                app.logger.info("Password OK, update")
-                #Update the Password
-                theSQL = f"UPDATE user SET password = '{password}' WHERE id = {userId}"
-                app.logger.info("SQL %s", theSQL)
-                write_db(theSQL)
-                flask.flash("Password Updated")
-                
-            else:
-                app.logger.info("Mismatch")
-                flask.flash("Current Password is incorrect")
-            return flask.redirect(flask.url_for("settings",
-                                                userId = thisUser['id']))
-
-            
-    
-        flask.flash("Update Error")
-
-    return flask.redirect(flask.url_for("settings", userId=userId))
+# ---------------------------------------
+#
+# BASKET AND PAYMEN
+#
+# ------------------------------------------
 
 
 
@@ -359,6 +373,9 @@ def pay():
 
 
 
+# ---------------------------
+# HELPER FUNCTIONS
+# ---------------------------
 
 
 @app.route('/uploads/<name>')
@@ -373,6 +390,8 @@ def serve_image(name):
 def database_helper():
     """
     Helper / Debug Function to create the initial database
+
+    You are free to ignore scurity implications of this
     """
     init_db()
     return "Done"

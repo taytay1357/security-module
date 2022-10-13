@@ -24,7 +24,17 @@ Build using Flask, see https://flask.palletsprojects.com/en/2.2.x/
      ```
 	 flask --app app/ --debug run
 	 ```
-	 
+
+The site should now be visible on 127.0.0.1:5000
+
+## Inital DB
+
+Database Schema can be found in ```schema.db```
+
+You can initialise a testing db by visiting ```127.0.0.1:5000/initdb```
+
+
+
 	 
 
 ## Files
@@ -36,3 +46,4 @@ Some Supporting files
     Basic database schema to get you started
 	
 	You can build this by visiting the ```/initdb``` url
+
