@@ -6,19 +6,18 @@
 <div class="row">
 
   
-  <h1> {{ item.name }}</h1>
+  <h1> {{ item["name"] }}</h1>
 
   
   <div class="col s6">
     <div class="section">
       <h5>Description</h5>
-      {{ item.description }}
+      {{ item["description"] }}
     </div>
     <div class="divider"></div>
     <div class="section">
       <ul>
-	<li>Category: {{item.category}}</li>
-	<li>Price: £{{item.price}}</li>
+	<li>Price: £{{item["price"]}}</li>
       </ul>
     </div>
     <div class="divider"></div>
@@ -44,9 +43,9 @@
       {% for item in reviews %}
       <div class="card">
 	<div class="card-content">
-	  <span class="card-title"><strong>{{item.user.name}}</strong> Gave this {{ item.stars }}  out of  5 Stars</span>
+	  <span class="card-title"><strong>{{item.email}}</strong> Gave this {{ item.stars }}  out of  5 Stars</span>
 
-	  {{ item.comments }}
+	  {{ item.review | safe }}
 
 	</div>
       </div>

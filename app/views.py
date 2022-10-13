@@ -1,5 +1,6 @@
 from .meta import *
 
+import datetime
 
 
 @app.route("/")
@@ -27,10 +28,16 @@ def products():
         
         #We Do A Query for It
         itemQry = query_db(f"SELECT * FROM product WHERE id = ?",[theItem], one=True)
-        #And Associated Review
-        reviewQry = query_db("SELECT * FROM review WHERE productID = ?", [theItem])
 
-
+        #And Associated Reviews
+        #reviewQry = query_db("SELECT * FROM review WHERE productID = ?", [theItem])
+        theSQL = f"""
+        SELECT * 
+        FROM review
+        INNER JOIN user ON review.userID = user.id
+        WHERE review.productID = {itemQry['id']};
+        """
+        reviewQry = query_db(theSQL)
         
         #If there is form interaction and they put somehing in the basket
         if flask.request.method == "POST":
@@ -44,7 +51,7 @@ def products():
                                              item = itemQry,
                                              reviews=reviewQry)
             
-            logging.warning("Buy Clicked %s items", quantity)
+            app.logger.warning("Buy Clicked %s items", quantity)
             
             #And we add something to the Session for the user to keep track
             basket = flask.session.get("basket", {})
@@ -151,13 +158,81 @@ def settings(userId):
         flask.flash("No Such User")
         return flask.redirect(flask.url_for("index"))
 
-    #Purchaces
+    #Purchases
     theSQL = f"Select * FROM purchase WHERE userID = {userId}"
+    purchaces = query_db(theSQL)
+
+    theSQL = """
+    SELECT productId, date, product.name
+    FROM purchase
+    INNER JOIN product ON purchase.productID = product.id
+    WHERE userID = {0};
+    """.format(userId)
+
     purchaces = query_db(theSQL)
     
     return flask.render_template("usersettings.html",
                                  user = thisUser,
                                  purchaces = purchaces)
+
+
+@app.route("/review/<userId>/<itemId>", methods=["GET", "POST"])
+def reviewItem(userId, itemId):
+    """Add a Review"""
+
+    #Handle input
+    if flask.request.method == "POST":
+        reviewStars = flask.request.form.get("rating")
+        reviewComment = flask.request.form.get("review")
+
+        #Clean up review whitespace
+        reviewComment = reviewComment.strip()
+        reviewId = flask.request.form.get("reviewId")
+
+        app.logger.info("Review Made %s", reviewId)
+        app.logger.info("Rating %s  Text %s", reviewStars, reviewComment)
+
+        if reviewId:
+            #Update an existing oe
+            app.logger.info("Update Existing")
+
+            theSQL = f"""
+            UPDATE review
+            SET stars = {reviewStars},
+                review = '{reviewComment}'
+            WHERE
+                id = {reviewId}"""
+
+            app.logger.debug("%s", theSQL)
+            write_db(theSQL)
+
+            flask.flash("Review Updated")
+            
+        else:
+            app.logger.info("New Review")
+
+            theSQL = f"""
+            INSERT INTO review (userId, productId, stars, review)
+            VALUES ({userId}, {itemId}, {reviewStars}, '{reviewComment}');
+            """
+
+            app.logger.info("%s", theSQL)
+            write_db(theSQL)
+
+            flask.flash("Review Made")
+
+    #Otherwise get the review
+    theQry = f"SELECT * FROM product WHERE id = {itemId};"
+    item = query_db(theQry, one=True)
+    
+    theQry = f"SELECT * FROM review WHERE userID = {userId} AND productID = {itemId};"
+    review = query_db(theQry, one=True)
+    app.logger.debug("Review Exists %s", review)
+
+    return flask.render_template("reviewItem.html",
+                                 item = item,
+                                 review = review,
+                                 )
 
 
     
@@ -207,6 +282,81 @@ def updateUser(userId):
         flask.flash("Update Error")
 
     return flask.redirect(flask.url_for("settings", userId=userId))
+
+
+
+@app.route("/basket", methods=["GET","POST"])
+def basket():
+
+    #Check for user
+    if not flask.session["user"]:
+        flask.flash("You need to be logged in")
+        return flask.redirect(flask.url_for("index"))
+
+
+    theBasket = []
+    #Otherwise we need to work out the Basket
+    #Get it from the session
+    sessionBasket = flask.session.get("basket", None)
+    if not sessionBasket:
+        flask.flash("No items in basket")
+        return flask.redirect(flask.url_for("index"))
+
+    totalPrice = 0
+    for key in sessionBasket:
+        theQry = f"SELECT * FROM product WHERE id = {key}"
+        theItem =  query_db(theQry, one=True)
+        quantity = int(sessionBasket[key])
+        thePrice = theItem["price"] * quantity
+        totalPrice += thePrice
+        theBasket.append([theItem, quantity, thePrice])
+    
+        
+    return flask.render_template("basket.html",
+                                 basket = theBasket,
+                                 total=totalPrice)
+
+@app.route("/basket/payment", methods=["GET", "POST"])
+def pay():
+    """
+    Fake paymeent.
+
+    YOU DO NOT NEED TO IMPLEMENT PAYMENT
+    """
+    
+    if not flask.session["user"]:
+        flask.flash("You need to be logged in")
+        return flask.redirect(flask.url_for("index"))
+
+    #Get the total cost
+    cost = flask.request.form.get("total")
+
+
+    
+    #Fetch USer ID from Sssion
+    theQry = "Select * FROM User WHERE id = {0}".format(flask.session["user"])
+    theUser = query_db(theQry, one=True)
+
+    #Add products to the user
+    sessionBasket = flask.session.get("basket", None)
+
+    theDate = datetime.datetime.utcnow()
+    for key in sessionBasket:
+
+        #As we should have a trustworthy key in the basket.
+        theQry = "INSERT INTO PURCHASE (userID, productID, date) VALUES ({0},{1},'{2}')".format(theUser['id'],
+                                                                                              key,
+                                                                                              theDate)
+                                                                                              
+        app.logger.debug(theQry)
+        write_db(theQry)
+
+    #Clear the Session
+    flask.session.pop("basket", None)
+    
+    return flask.render_template("pay.html",
+                                 total=cost)
+
 
 
 

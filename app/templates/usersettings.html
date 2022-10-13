@@ -10,7 +10,7 @@
   <ul>
     <li>ID {{user.id}}</li>
     <li>Email {{user.email}}</li>
-    </ul>
+  </ul>
 
   
 <div class="row">
@@ -23,15 +23,17 @@
 	<th>Review</th>
       </tr>
     </thead>
-  {% for book in purchaces %}
-  <tr>
-    <td>{{ book.item.name }} </td>
-    <td>{{ book.date }} </td>
-    <td><a href="{{url_for('reviewItem', userId=user.id, itemId=book.item.id)}}">Review Item</a></td>
+  {% for item in purchaces %}
+    <tr>
+    <td>{{ item.name }} </td>
+    <td>{{ item.date }} </td>
+    <td><a href="{{url_for('reviewItem', userId=user.id, itemId=item.productID)}}">Review Item</a></td>
   </tr>
   {% endfor %}
   </table>
 </div>
+
+
 
 <div class="row">
   <h2>Update Password</h2>
