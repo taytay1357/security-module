@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col s6 offset-s3">
+    <h1>Terms and Conditions</h1>
+    <div>
+        <h2>Security</h2>
+        <p>
+            In this section I will explain how your data will be handled and processed when it enters our system here at Blackbooks.<br><br>
+        </p>
+        <h4>Sensitive Data</h3>
+        <p>
+            Data comes into our system through your user input via forms, it is instantly hashed using reputable hashing algorithms. Once hashed it is stored inside our secure database.<br><br>
+        </p>
+        <h2>Data</h1>
+        <h4>What data do we collect?</h2>
+        <p>
+            Here is a list of the data that we collect from you either through your input or behind the scenes:<br>
+            
+        </p>
+        <ul>
+            <li>Email - through manual input</li>
+            <li>Password - through manual input</li>
+            <li>Payment Information - through manual input</li>
+            <li>Order Information - determined through purchasing</li>
+            <li>IP Address</li>
+        </ul>
+        <h4>How will your data will be used?</h2>
+        <p>Most data collected is used for basic functionality of the site, to allow you the user to login, create an account etc.</p>
+        <h4>Logging and Analytics</h3>
+        <p>We log your movement around the site through the use of your IP address, this helps to protect your data and allows us to keep tabs on any unauthorised and malicious activity.<br><br> We log this data to stop any attacks on the system, which could lead to breaches in security so this is pivital.</p>
+        <h4>Who has access to your personal data?</h2>
+        <p>The functionality of the system allows the admin users of our company to see all of the users that are in the database. They cannot modify anything, they can just see your email.<br><br>Other than this no one else can see your data.</p>
+        <h2>Cookies and Sessions</h1>
+        <p>The only use of Cookies and Sessions in this application is to make the login, basket and admin systems functional.<br><br>Checking the database for the credentials you supply if they are correct then we store a cryptographically-signed cookies for a session.<br><br>This helps the system to know which users are logged in at the time and allows you to access all the functionality and data on the application.</p>
+        <h2>Your Rights</h1>
+        <p>Under the GDPR regulations, we are not allowed to store any data on you unless we have full consent from the user given to us by you clicking agree to the terms when creating an account.</p>
+        <h4>Right to Erasure</h2>
+        <p>You have the right to erase any data that we store on you from our database.</p>
+        <h4>Right to Access</h2>
+        <p>You have the right to see any data that we hold on you in which you can request from use throught contacting customer support.</p>
+        <h4>Data Portability</h2>
+        <p>You have the right to data portability which means you can request that any data is transferred to another party usually another company.</p>
+    </div>
+  </div>
+</div>
+
+
+{% endblock content %}

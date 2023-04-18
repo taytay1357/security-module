@@ -27,7 +27,7 @@
     <tr>
     <td>{{ item.name }} </td>
     <td>{{ item.date }} </td>
-    <td><a href="{{url_for('reviewItem', userId=user.id, itemId=item.productID)}}">Review Item</a></td>
+    <td><a href="{{url_for('reviewItem', itemId=item.productID)}}">Review Item</a></td>
   </tr>
   {% endfor %}
   </table>

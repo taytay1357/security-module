@@ -2,9 +2,11 @@ BEGIN TRANSACTION;
 CREATE TABLE user (
    id INTEGER PRIMARY KEY,
    email TEXT NOT NULL,
-   password TEXT NOT NULL
+   password TEXT NOT NULL,
+   passwordHash TEXT NOT NULL,
+   role TEXT NOT NULL
    ); 
-INSERT INTO user VALUES(1,'test@test.com','swordfish');
+INSERT INTO user VALUES(1,'test@test.com','swordfish', 'SALT', 'user');
 CREATE TABLE product (
    id INTEGER PRIMARY KEY,
    name TEXT NOT NULL,

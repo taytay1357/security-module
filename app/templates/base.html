@@ -40,7 +40,12 @@
 
 	<ul id="nav-mobile" class="hide-on-med-and-down">
 	  <li><a href="{{ url_for('index') }}">Home</a></li>
-	  <li><a href="{{ url_for('products') }}">Products</a></li>
+    {% if session["admin"] %}
+    <li><a href="{{ url_for('add') }}">Add Books</a></li>
+    {% else %}
+    <li><a href="{{ url_for('products') }}">Products</a></li>
+    {% endif %}
+	  
 	</ul>
 	<ul id="nav-mobile" class="right hide-on-med-and-down">
 	  <!-- Show Basket if here is one -->
@@ -49,9 +54,13 @@
 	  {% endif %}
 	  <!-- Show Login or Other depending on session -->
 	  {% if session["user"] %}
-	  <li><a href="{{ url_for('settings', userId=session['user']) }}">Settings</a></li>
+	  <li><a href="{{ url_for('settings') }}">Settings</a></li>
 	  <li><a href="{{ url_for('logout') }}">Logout</a></li>
-	  {% else %}
+	  {% elif session["admin"] %}
+    <li><a href="{{ url_for('users') }}">Users</a></li>
+    <li><a href="{{ url_for('settings') }}">Settings</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+    {% else %}
 	  <li><a href="{{ url_for('login')}}">Login</a></li>
 	  {% endif %}
 	</ul>

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col s6 offset-s3">
+    <h1>Add a Book</h1>
+    <form method="POST">
+      <div class="input-field">
+	<input id="name" name="name" type="text"/>
+	<label for="name">Book Name<label>
+      </div>
+      <div class="input-field">
+	<input id="description" name="description" type="text"/>
+	<label for="description">Description<label>
+      </div>
+      <div class="input-field">
+	<input id="price" name="price" type="number" step="any"/>
+	<label for="price">Price<label>
+      </div>
+
+      <!-- Tribute to the wonderful Aula -->
+      
+      <p>
+      <label for="image">Image Path
+	<input id="image" name="image" type="text"/>
+      </label>
+      </p>
+      
+      
+      <button class="waves-effect waves-light btn">Add</button>
+
+    </form>
+  </div>
+</div>
+
+
+{% endblock content %}
